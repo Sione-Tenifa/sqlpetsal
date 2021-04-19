@@ -1,4 +1,3 @@
-"""Demo file showing off a model for SQLAlchemy."""
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,6 +16,18 @@ class Pet(db.Model):
 
     __tablename__ = "pets"
 
+    @classmethod
+    def get_by_species(cls, species):
+        return cls.query.filter_by(species=species).all()
+
+    @classmethod
+    def get_all_hungry(cls):
+        return cls.query.filter(Pet.hunger > 20).all()
+
+    def __repr__(self):
+        p = self
+        return f"<Pet id={p.id} name-{p.name} species={p.species} hunger={p.hunger}>"
+
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
@@ -27,24 +38,10 @@ class Pet(db.Model):
     hunger = db.Column(db.Integer, nullable=False, default=20)
 
     def greet(self):
-        """Greet using name."""
+        return f"Hi, I am {self.name} the {self.species} "
 
-        return f"I'm {self.name} the {self.species or 'thing'}"
-
-    def feed(self, units=10):
-        """Nom nom nom."""
-
-        self.hunger -= units
+    def feed(self, amt=20):
+        """Update unger based off of amt"""
+        self.hunger -= amt
         self.hunger = max(self.hunger, 0)
-
-    def __repr__(self):
-        """Show info about pet."""
-
-        p = self
-        return f"<Pet {p.id} {p.name} {p.species} {p.hunger}>"
-
-    @classmethod
-    def get_by_species(cls, species):
-        """Get all pets matching that species."""
-
-        return cls.query.filter_by(species=species).all()
+    
